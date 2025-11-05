@@ -12,6 +12,7 @@ generates example plots if called directly from the shell.
 """
 
 from numpy import *
+import numpy as np
 from scipy.optimize import fmin_bfgs
 from scipy.special import gamma as gamma_fun
 from scipy.special import iv as modified_bessel_2ndkind
@@ -471,22 +472,22 @@ def kent_me(xs):
   
   # kappa and beta can be estimated but may not lie outside their permitted ranges
   min_kappa = KentDistribution.minimum_value_for_kappa
-  kappa = max( min_kappa, 1.0/(2.0-2.0*r1-r2) + 1.0/(2.0-2.0*r1+r2)  )
+  kappa = np.maximum( min_kappa, 1.0/(2.0-2.0*r1-r2) + 1.0/(2.0-2.0*r1+r2)  )
   beta  = 0.5*(1.0/(2.0-2.0*r1-r2) - 1.0/(2.0-2.0*r1+r2))
   
   return kent4(G, kappa, beta)  
 
 def __kent_mle_output1(k_me, callback):
-  print
-  print "******** Maximum Likelihood Estimation ********"
-  print "Initial moment estimates are:"
-  print "theta =", k_me.theta
-  print "phi   =", k_me.phi
-  print "psi   =", k_me.psi
-  print "kappa =", k_me.kappa
-  print "beta  =", k_me.beta
-  print "******** Starting the Gradient Descent ********"
-  print "[iteration]   kappa        beta        -L"
+  print()
+  print( "******** Maximum Likelihood Estimation ********")
+  print( "Initial moment estimates are:")
+  print( "theta =", k_me.theta)
+  print( "phi   =", k_me.phi)
+  print( "psi   =", k_me.psi)
+  print( "kappa =", k_me.kappa)
+  print( "beta  =", k_me.beta)
+  print( "******** Starting the Gradient Descent ********")
+  print( "[iteration]   kappa        beta        -L")
 
 def __kent_mle_output2(x, minusL, output_count, verbose):
   interval = verbose if isinstance(verbose, int) else 1

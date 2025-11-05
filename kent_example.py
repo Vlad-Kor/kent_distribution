@@ -16,18 +16,18 @@ seed(2323)
 
 def test_example_normalization(showplots=False, verbose=False, gridsize=100, print_grid=True):
   scale = (1000.0/gridsize)
-  print "Calculating the matrix M_ij of values that can be calculated: kappa=%.1f*i+1, beta=%.1f+j*1" % (scale, scale)
+  print("Calculating the matrix M_ij of values that can be calculated: kappa=%.1f*i+1, beta=%.1f+j*1" % (scale, scale))
   with warnings.catch_warnings():
     warnings.simplefilter("error")
-    c_grid, dck_grid, dcb_grid = [zeros((gridsize, gridsize))-1.0 for z in xrange(3)]
-    cnum_grid, dcnum_grid = [zeros((gridsize, gridsize), dtype=int32)-1 for z in xrange(2)]
+    c_grid, dck_grid, dcb_grid = [zeros((gridsize, gridsize))-1.0 for z in range(3)]
+    cnum_grid, dcnum_grid = [zeros((gridsize, gridsize), dtype=int32)-1 for z in range(2)]
     sys.stdout.write("Calculating normalization factor for combinations of kappa and beta: ")
-    for i in xrange(gridsize):
+    for i in range(gridsize):
       if verbose:
         sys.stdout.write("%s/%s " % (i*gridsize, gridsize*gridsize))
         sys.stdout.flush()
       kappa = scale*i + 1.0
-      for j in xrange(gridsize):
+      for j in range(gridsize):
         beta = scale*j + 1.0
         f = kent(0.0, 0.0, 0.0, kappa, beta) 
         try:
@@ -59,9 +59,9 @@ def test_example_normalization(showplots=False, verbose=False, gridsize=100, pri
         ax = f.add_subplot(111)
         cb = ax.imshow(grid, interpolation="nearest")
         f.colorbar(cb)
-        ax.set_title(name+" $(-1=\mathrm{overflow}$)")
-        ax.set_xticklabels([str(int(t*scale+1)) for t in ax.get_xticks()])
-        ax.set_yticklabels([str(int(t*scale+1)) for t in ax.get_yticks()])
+        ax.set_title(name+r" $(-1=\mathrm{overflow}$)")
+        ax.xaxis.set_major_formatter(lambda t, pos: f"{int(t*scale+1)}")
+        ax.yaxis.set_major_formatter(lambda t, pos: f"{int(t*scale+1)}")
         ax.set_ylabel(r"$\kappa$")
         ax.set_xlabel(r"$\beta$")
   print
@@ -70,9 +70,9 @@ def test_example_normalization(showplots=False, verbose=False, gridsize=100, pri
       ("Iterations necessary to calculate normalize(kappa, beta):", cnum_grid),
       ("Iterations necessary to calculate the gradient of normalize(kappa, beta):", dcnum_grid)
     ]:
-      print message
+      print(message)
       for i, line in enumerate(grid):
-        print " ".join(['  x' if n == -1.0 else '%3i' % n for n in line])
+        print(" ".join(['  x' if n == -1.0 else '%3i' % n for n in line]))
     
   
 def test_example_mle(showplots=False):
@@ -84,7 +84,7 @@ def test_example_mle(showplots=False):
     kent(-0.35*pi, -0.25*pi, pi/32,  50.0, 25.0),
     kent(0.0, 0.0, pi/32,  50.0, 25.0),
   ]:
-    print "Original Distribution: k =", k
+    print("Original Distribution: k =", k)
     gridsize = 200
     u = linspace(0, 2 * pi, gridsize)
     v = linspace(0, pi, gridsize)
@@ -102,12 +102,12 @@ def test_example_mle(showplots=False):
         keys.append((i, j))
     points = array(points)
 
-    print "Drawing 10000 samples from k"
+    print( "Drawing 10000 samples from k")
     xs = k.rvs(10000)
     k_me = kent_me(xs)
-    print "Moment estimation:  k_me =", k_me
+    print( "Moment estimation:  k_me =", k_me)
     k_mle = kent_mle(xs, warning=sys.stdout)
-    print "Fitted with MLE:   k_mle =", k_mle
+    print( "Fitted with MLE:   k_mle =", k_mle)
     assert k_me.log_likelihood(xs) < k_mle.log_likelihood(xs)
 
     value_for_color = k_mle.pdf(points)
@@ -126,9 +126,9 @@ def test_example_mle(showplots=False):
       ax.scatter(1.05*array(xx), 1.05*array(yy), 1.05*array(zz), c='b')
       ax.plot_surface(x, y, z, rstride=4, cstride=4, facecolors=colors, linewidth=0)
       values_t = r"$\theta=%.2f^\circ,\ \phi=%.2f^\circ,\ \psi=%.2f^\circ,\ \kappa=%.3f,\ \beta=%.3f$" 
-      f.text(0.12, 0.99-0.025, "$\mathrm{Original\ Values:}$")
-      f.text(0.12, 0.99-0.055, "$\mathrm{Moment\ estimates:}$")
-      f.text(0.12, 0.99-0.080, "$\mathrm{MLE\ (shown):}$")
+      f.text(0.12, 0.99-0.025, r"$\mathrm{Original\ Values:}$")
+      f.text(0.12, 0.99-0.055, r"$\mathrm{Moment\ estimates:}$")
+      f.text(0.12, 0.99-0.080, r"$\mathrm{MLE\ (shown):}$")
       f.text(0.30, 0.99-0.025, values_t % (k.theta*180/pi,     k.phi*180/pi,     k.psi*180/pi,     k.kappa,     k.beta))
       f.text(0.30, 0.99-0.055, values_t % (k_me.theta*180/pi,  k_me.phi*180/pi,  k_me.psi*180/pi,  k_me.kappa,  k_me.beta))
       f.text(0.30, 0.99-0.080, values_t % (k_mle.theta*180/pi, k_mle.phi*180/pi, k_mle.psi*180/pi, k_mle.kappa, k_mle.beta))
@@ -146,17 +146,17 @@ def calculate_bias_var_and_mse(x, y):
 def test_example_mle2(num_samples, showplots=False, verbose=False, stepsize=1.0):
   max_kappa = 50.0
   real_kappas = arange(1.0, max_kappa, stepsize)
-  print "Testing various combinations of kappa and beta for", num_samples, "samples."
-  bias_var_mse_kappa_me, bias_var_mse_kappa_mle, bias_var_mse_beta_me, bias_var_mse_beta_mle = [list() for i in xrange(4)]
+  print( "Testing various combinations of kappa and beta for", num_samples, "samples.")
+  bias_var_mse_kappa_me, bias_var_mse_kappa_mle, bias_var_mse_beta_me, bias_var_mse_beta_mle = [list() for i in range(4)]
   beta_ratios = (0.0, 0.05, 0.1, 0.2, 0.3, 0.5, 1.0)
   for beta_ratio in beta_ratios:
     real_betas = beta_ratio*real_kappas
-    kappas_me, kappas_mle, betas_me, betas_mle = [list() for i in xrange(4)]
+    kappas_me, kappas_mle, betas_me, betas_mle = [list() for i in range(4)]
     if verbose:
-      print "beta (max 2.0) = %s*kappa : kappa (max %.1f) = " % (beta_ratio, max_kappa),
+      print( "beta (max 2.0) = %s*kappa : kappa (max %.1f) = " % (beta_ratio, max_kappa)),
     for kappa in real_kappas:
       if verbose:
-        print "%.1f" % kappa,
+        print( "%.1f" % kappa,)
         sys.stdout.flush()
       beta = kappa*beta_ratio
       k = kent(uniform(0, pi), uniform(0, 2*pi), uniform(0, 2*pi), kappa, beta)
@@ -216,7 +216,7 @@ def test_example_mle2(num_samples, showplots=False, verbose=False, stepsize=1.0)
       ax.set_ylabel("MLE")
       xl = ax.get_xlim()
       yl = ax.get_ylim()
-      mxl = (min(xl[0], yl[0]), max(xl[1], yl[1]))
+      mxl = (np.minimum(xl[0], yl[0]), np.maximum(xl[1], yl[1]))
       ax.plot(mxl, mxl, '-.k')
       ax.set_xlim(mxl)
       ax.set_ylim(mxl)
@@ -231,20 +231,20 @@ def test_example_mle2(num_samples, showplots=False, verbose=False, stepsize=1.0)
     biass_mle, vars_mle, mses_mle = zip(*bias_var_mse_mle)
     for mse_me, mse_mle, beta_ratio in zip(mses_me, mses_mle, beta_ratios):
       if mse_me < mse_mle*0.7:
-        print "MSE of MLE is lower than 0.7 times the moment estimate for %s" % name
+        print("MSE of MLE is lower than 0.7 times the moment estimate for %s" % name)
         return False
       if beta_ratio >= 0.3:
         if mse_me < mse_mle:
-          print "MSE of MLE is lower than moment estimate for %s with beta/kappa >= 0.3" % name
+          print("MSE of MLE is lower than moment estimate for %s with beta/kappa >= 0.3" % name)
           return False
       if beta_ratio > 0.5:
         if mse_me < 5*mse_mle:
-          print "MSE of MLE is not lower than five times the moment estimate %s with beta/kappa >= 0.5" % name
+          print("MSE of MLE is not lower than five times the moment estimate %s with beta/kappa >= 0.5" % name)
           return False
       
-  print "MSE of MLE is higher than 0.7 times the moment estimate for beta/kappa <= 0.2"  
-  print "MSE of MLE is higher than moment estimate for beta/kappa >= 0.3"
-  print "MSE of MLE is five times higher than moment estimates for beta/kappa >= 0.5"
+  print("MSE of MLE is higher than 0.7 times the moment estimate for beta/kappa <= 0.2" )
+  print( "MSE of MLE is higher than moment estimate for beta/kappa >= 0.3")
+  print("MSE of MLE is five times higher than moment estimates for beta/kappa >= 0.5")
   return True
 
 if __name__ == "__main__":
